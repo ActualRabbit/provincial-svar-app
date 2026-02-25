@@ -117,9 +117,22 @@ load_national_employment <- function() {
    select(Date, National_Employment)
 }
 
-# Build combined datasets
+# Load pre-baked data if available, otherwise build from CANSIM
+load_datasets <- function() {
+ prebaked_file <- "data/datasets.rds"
+ 
+ if (file.exists(prebaked_file)) {
+   message("Loading pre-baked datasets from ", prebaked_file)
+   return(readRDS(prebaked_file))
+ }
+ 
+ # Fall back to building from CANSIM
+ build_datasets()
+}
+
+# Build combined datasets (from CANSIM - slow, memory intensive)
 build_datasets <- function() {
- message("Building datasets...")
+ message("Building datasets from CANSIM (this may take several minutes)...")
  
  commodity <- load_or_cache("commodity_prices", load_commodity_prices)
  interest <- load_or_cache("interest_rates", load_interest_rates)
@@ -340,9 +353,9 @@ server <- function(input, output, session) {
  
  # Initialize data
  observe({
-   showNotification("Loading data from Statistics Canada...", type = "message", duration = NULL, id = "loading")
+   showNotification("Loading data...", type = "message", duration = NULL, id = "loading")
    
-   datasets <- build_datasets()
+   datasets <- load_datasets()
    data(datasets)
    
    # Update UI choices
