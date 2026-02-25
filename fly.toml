@@ -1,0 +1,29 @@
+# fly.toml - Fly.io deployment configuration
+# Deploy with: fly launch (first time) or fly deploy (updates)
+
+app = "provincial-svar"
+primary_region = "yyz"  # Toronto - closest to Canadian data sources
+
+[build]
+  dockerfile = "Dockerfile"
+
+[http_service]
+  internal_port = 3838
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+
+[http_service.concurrency]
+  type = "connections"
+  hard_limit = 25
+  soft_limit = 20
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 1024  # R + SVAR estimation needs some RAM
+
+[mounts]
+  source = "svar_cache"
+  destination = "/srv/shiny-server/provincial-svar/cache"

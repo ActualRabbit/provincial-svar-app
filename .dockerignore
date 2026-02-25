@@ -1,0 +1,9 @@
+.git
+.gitignore
+*.md
+!about.md
+cache/
+.Rhistory
+.RData
+*.Rproj
+.Rproj.user
