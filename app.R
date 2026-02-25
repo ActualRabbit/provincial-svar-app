@@ -184,20 +184,23 @@ estimate_provincial_svar <- function(provincial_data, province, p_lags = 3) {
  A_Matrix <- diag(5)
  A_Matrix[lower.tri(A_Matrix)] <- NA
  
- # Estimate VAR
- lag_p <- p_lags  # Local copy for VAR
- var_model <- vars::VAR(ts_matrix, p = lag_p, type = "both")
+ # Estimate VAR (use do.call to force argument evaluation - vars uses NSE)
+ var_model <- do.call(vars::VAR, list(y = ts_matrix, p = p_lags, type = "both"))
  
  # Estimate SVAR
- svar_model <- vars::SVAR(var_model, Amat = A_Matrix, Bmat = NULL,
-                          max.iter = 100000, hessian = TRUE, estmethod = "direct")
+ svar_model <- do.call(vars::SVAR, list(
+   x = var_model, Amat = A_Matrix, Bmat = NULL,
+   max.iter = 100000, hessian = TRUE, estmethod = "direct"
+ ))
  
  return(svar_model)
 }
 
 compute_irf <- function(svar_model, impulse, response, n.ahead = 24, ci = 0.66) {
- irf_result <- vars::irf(svar_model, impulse = impulse, response = response,
-                         n.ahead = n.ahead, ci = ci, boot = TRUE, runs = 200)
+ irf_result <- do.call(vars::irf, list(
+   x = svar_model, impulse = impulse, response = response,
+   n.ahead = n.ahead, ci = ci, boot = TRUE, runs = 200
+ ))
  
  # Extract IRF data
  tibble(
