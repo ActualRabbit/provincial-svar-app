@@ -154,7 +154,7 @@ build_datasets <- function() {
 # SVAR ESTIMATION
 # =============================================================================
 
-estimate_provincial_svar <- function(provincial_data, province, lag_order = 3) {
+estimate_provincial_svar <- function(provincial_data, province, p_lags = 3) {
  # Filter to province
  prov_df <- provincial_data %>%
    filter(GEO == province) %>%
@@ -182,7 +182,7 @@ estimate_provincial_svar <- function(provincial_data, province, lag_order = 3) {
  A_Matrix[lower.tri(A_Matrix)] <- NA
  
  # Estimate VAR
- var_model <- VAR(ts_matrix, p = lag_order, type = "both")
+ var_model <- VAR(ts_matrix, p = p_lags, type = "both")
  
  # Estimate SVAR
  svar_model <- SVAR(var_model, Amat = A_Matrix, Bmat = NULL,
