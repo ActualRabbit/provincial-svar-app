@@ -1,7 +1,7 @@
 # Rocker Shiny base image
-FROM rocker/shiny:4.3.2
+FROM rocker/shiny-verse:4.3.2
 
-# Install system dependencies
+# Install additional system dependencies
 RUN apt-get update && apt-get install -y \
     libcurl4-openssl-dev \
     libssl-dev \
@@ -11,10 +11,12 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libtiff5-dev \
     libjpeg-dev \
+    libharfbuzz-dev \
+    libfribidi-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install R packages
-RUN R -e "install.packages(c('shiny', 'bslib', 'vars', 'cansim', 'tidyverse', 'plotly', 'markdown'), repos='https://cloud.r-project.org/')"
+# Install R packages (tidyverse already in shiny-verse, add the rest)
+RUN R -e "install.packages(c('bslib', 'vars', 'cansim', 'plotly', 'markdown'), repos='https://cloud.r-project.org/')"
 
 # Create app directory
 RUN mkdir -p /srv/shiny-server/provincial-svar
