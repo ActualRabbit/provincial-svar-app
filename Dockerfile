@@ -25,6 +25,7 @@ WORKDIR /srv/shiny-server/provincial-svar
 # Copy app files
 COPY app.R .
 COPY about.md .
+COPY data/ data/
 
 # Create cache directory with write permissions
 RUN mkdir -p cache && chmod 777 cache
