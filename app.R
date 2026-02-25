@@ -155,6 +155,9 @@ build_datasets <- function() {
 # =============================================================================
 
 estimate_provincial_svar <- function(provincial_data, province, p_lags = 3) {
+ # Force evaluation of parameters
+ p_lags <- as.integer(p_lags)
+ 
  # Filter to province
  prov_df <- provincial_data %>%
    filter(GEO == province) %>%
@@ -182,18 +185,19 @@ estimate_provincial_svar <- function(provincial_data, province, p_lags = 3) {
  A_Matrix[lower.tri(A_Matrix)] <- NA
  
  # Estimate VAR
- var_model <- VAR(ts_matrix, p = p_lags, type = "both")
+ lag_p <- p_lags  # Local copy for VAR
+ var_model <- vars::VAR(ts_matrix, p = lag_p, type = "both")
  
  # Estimate SVAR
- svar_model <- SVAR(var_model, Amat = A_Matrix, Bmat = NULL,
-                    max.iter = 100000, hessian = TRUE, estmethod = "direct")
+ svar_model <- vars::SVAR(var_model, Amat = A_Matrix, Bmat = NULL,
+                          max.iter = 100000, hessian = TRUE, estmethod = "direct")
  
  return(svar_model)
 }
 
 compute_irf <- function(svar_model, impulse, response, n.ahead = 24, ci = 0.66) {
- irf_result <- irf(svar_model, impulse = impulse, response = response,
-                   n.ahead = n.ahead, ci = ci, boot = TRUE, runs = 200)
+ irf_result <- vars::irf(svar_model, impulse = impulse, response = response,
+                         n.ahead = n.ahead, ci = ci, boot = TRUE, runs = 200)
  
  # Extract IRF data
  tibble(
